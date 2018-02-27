@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\23e52b59366b944e5499f0f8f0f2fbf676145365\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="bc7e99e8d0fc279a05aa91378530f467ad62d443">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\classes_d4639062c130d5f43ec51b4ddbe1f89275bafb25.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\8f4d5248bf87cd8365411c232f73cae758f2f5e4\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="4700f436ede140fb804204f806c9cc3f08e386f4">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\classes_31208e935cc507f0f5c6a90d31962b0aeeccf38d.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\AppData\Local\Android\Sdk\extras\android\m2repository\com\android\support\support-annotations\25.0.1\support-annotations-25.0.1.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="a09194311f8f89c3e6db09d79f50897a889d615e">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\support-annotations-25.0.1_8d2022a8e63c988130773e1156822874367465c6.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\b2ee262e5b1eec06e8e294ad8346c1efe25c68d6\output\jars\libs\internal_impl-25.0.1.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="3af8cc51ef7088e56f132780da8c0bd858b6a6ad">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\internal_impl-25.0.1_15d8a5a0b9dc6b5708bb74366eca8de83151d6f8.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\e3ede2ec65bf9d310468669be746a45469f312ab\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="1108575c7dc7b7f5b378b3290ac90de81a9b8830">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\classes_7fe6a4b3e3ae0d0afcf722af0efc591d7b4a7068.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\b21f13c726db94782ffe502ad5aaa551a36f19ff\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="00d4c8eebf2b681073c72a26bd0849549e51c7cb">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\classes_2238acf780fa08dbdb95a4db2072083228bb0301.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\b10fb51c26210b79257aaed2295663c70f639dd9\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="f7ac4b327fdb9e2ee386f5adc46164927658de4b">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\classes_e7502ce067ac342d16ac6c60529b2b08017f31bd.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\b21f13c726db94782ffe502ad5aaa551a36f19ff\output\jars\libs\internal_impl-25.0.1.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="c5b7145fb34779b6639147b8f2f8dd77c0db771b">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\internal_impl-25.0.1_c3c19b8e214996d9a7fdd7e9c16f0ce5bd5c3c72.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\61f10d660ff39e076491da97e581a01d5f884198\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="6a1479afe9f1b3645e1cd9a87318976893472818">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\classes_bcf85440af59938994e561da510417d29d124986.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\885a2e21c63a379418fc4cba431020149fd1a618\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="26c6eef571592c91f29e56fda0bac73321de0c92">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\classes_f36bad9f272d1f692d9f5877d392a0800f7baa45.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\61f10d660ff39e076491da97e581a01d5f884198\output\jars\libs\internal_impl-25.0.1.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="f83b00041ecfba705603fec40363416c7de69719">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\internal_impl-25.0.1_a082d00f22f6cf08a178b0c2b11c31f1c148fa8d.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\b2ee262e5b1eec06e8e294ad8346c1efe25c68d6\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="51eba4a4dd73044f90a9d58dd7ca34adbebfcf4e">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\classes_9b6389bbad0dfbf0bfed15d1da97abcaef8b4b1f.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\440a80f5b91f616836c07e40f26973c2fa748fc3\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="b24e1c688744078e1fa833ffadf696794761bbe5">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\classes_00781129988cb3195e9ebfb4e87a531be06d4334.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\885a2e21c63a379418fc4cba431020149fd1a618\output\jars\libs\internal_impl-25.0.1.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="c0bd6ffb002a85b5e7cad29f8558d1cc59539679">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\internal_impl-25.0.1_07fea20344fb568409613d69ee85d9d777918a09.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\23e52b59366b944e5499f0f8f0f2fbf676145365\output\jars\libs\internal_impl-25.0.1.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="e5343c9d19cb19ff55f6b268c7f3fe8c9d224f6f">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\internal_impl-25.0.1_bec83ff1d6511c269cf887c3397ac5e0129f152b.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\e4da79edd60d7ee7bc5228a4809499f3233b3ca3\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="772bed2d992b67b9d0327f766cc95cd63031dcd3">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\classes_f1b7144eb752b3c718c51eadf279c5496fd6b7ef.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Sander\.android\build-cache\17288dac763062b7a9da4eb1c07b081b382f919e\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="d7c42c80f6509b9ea4db28ca7859ffae08ec5741">
+        <dex dex="D:\Documenten Sander\Studie\BluetoothChat\Application\build\intermediates\pre-dexed\debug\classes_12c1e364eaadcaa4bf596c29d9bcf2dc6ad926a2.jar" />
+    </item>
+
+</items>
