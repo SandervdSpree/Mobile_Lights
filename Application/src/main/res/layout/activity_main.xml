@@ -20,36 +20,6 @@
     android:layout_height="match_parent"
     android:id="@+id/sample_main_layout">
 
-    <ViewAnimator
-        android:id="@+id/sample_output"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_weight="1">
-
-        <ScrollView
-            style="@style/Widget.SampleMessageTile"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                style="@style/Widget.SampleMessage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/horizontal_page_margin"
-                android:paddingRight="@dimen/horizontal_page_margin"
-                android:paddingTop="@dimen/vertical_page_margin"
-                android:paddingBottom="@dimen/vertical_page_margin"
-                android:text="@string/intro_message" />
-        </ScrollView>
-
-        <fragment
-            android:name="com.example.android.common.logger.LogFragment"
-            android:id="@+id/log_fragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </ViewAnimator>
-
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -61,5 +31,61 @@
         android:layout_width="match_parent"
         android:layout_height="0px" />
 
-</LinearLayout>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginLeft="120dp"
+        android:id="@+id/frame"/>
+
+    <TextView
+        android:id="@+id/angle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/tv_steps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/azi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/xCoordinate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/yCoordinate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/zCoordinate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"/>
+
+    <Button
+        android:id="@+id/btn_start"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Pedometer"
+        />
+
+    <Button
+        android:id="@+id/btn_stop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop Pedometer"
+        />
+
+    </LinearLayout>
 

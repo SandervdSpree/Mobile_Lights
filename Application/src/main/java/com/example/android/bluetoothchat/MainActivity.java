@@ -17,17 +17,19 @@
 
 package com.example.android.bluetoothchat;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ViewAnimator;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.example.android.common.activities.SampleActivityBase;
-import com.example.android.common.logger.Log;
-import com.example.android.common.logger.LogFragment;
-import com.example.android.common.logger.LogWrapper;
-import com.example.android.common.logger.MessageOnlyLogFilter;
 
 /**
  * A simple launcher activity containing a summary sample description, sample log and a custom
@@ -36,12 +38,39 @@ import com.example.android.common.logger.MessageOnlyLogFilter;
  * For devices with displays with a width of 720dp or greater, the sample log is always visible,
  * on other devices it's visibility is controlled by an item on the Action Bar.
  */
-public class MainActivity extends SampleActivityBase {
+public class MainActivity extends SampleActivityBase implements SensorEventListener, StepListener {
+
+    private TextView angle;
+    private TextView azi;
+    private TextView TvSteps;
+    private TextView xCoordinate;
+    private TextView yCoordinate;
+    private TextView zCoordinate;
+    private StepDetector simpleStepDetector;
+    private SensorManager sensorManager;
+    // Main View
+    private RelativeLayout mFrame;
+
+    // Sensors & SensorManager
+    private Sensor accelerometer;
+    private Sensor rotation;
+    BluetoothChatFragment fragment = new BluetoothChatFragment();
+
+    float[] orientation = new float[3];
+    float[] rMat = new float[9];
+
+    int[] mAzimuth = new int[99];
+    int aziCount = 0;
+
+    private static final String TEXT_NUM_STEPS = "Number of Steps: ";
+    private int numSteps;
 
     public static final String TAG = "MainActivity";
 
-    // Whether the Log Fragment is currently shown
-    private boolean mLogShown;
+    public int stride = 78;
+    public double xcoor = 575;
+    public double ycoor = 125;
+    public double zcoor = 180;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +79,70 @@ public class MainActivity extends SampleActivityBase {
 
         if (savedInstanceState == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            BluetoothChatFragment fragment = new BluetoothChatFragment();
             transaction.replace(R.id.sample_content_fragment, fragment);
             transaction.commit();
         }
+
+        // Get an instance of the SensorManager
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        rotation = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        simpleStepDetector = new StepDetector();
+        simpleStepDetector.registerListener(this);
+
+        sensorManager.unregisterListener(this);
+        sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(MainActivity.this, rotation, SensorManager.SENSOR_DELAY_GAME);
+
+        angle = (TextView) findViewById(R.id.angle);
+        azi = (TextView) findViewById(R.id.azi);
+        azi.setText("Waiting for a step...");
+        TvSteps = (TextView) findViewById(R.id.tv_steps);
+        xCoordinate = (TextView) findViewById(R.id.xCoordinate);
+        xCoordinate.setText("" + xcoor);
+        yCoordinate = (TextView) findViewById(R.id.yCoordinate);
+        yCoordinate.setText("" + ycoor);
+        zCoordinate = (TextView) findViewById(R.id.zCoordinate);
+        zCoordinate.setText("" + zcoor);
+
+        Button BtnStart = (Button) findViewById(R.id.btn_start);
+        Button BtnStop = (Button) findViewById(R.id.btn_stop);
+
+        BtnStart.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+
+                numSteps = 0;
+                xcoor = 575;
+                ycoor = 125;
+                zcoor = 180;
+
+                TvSteps.setText(TEXT_NUM_STEPS + numSteps);
+                xCoordinate.setText("" + xcoor);
+                yCoordinate.setText("" + ycoor);
+                zCoordinate.setText("" + zcoor);
+                sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+                sensorManager.registerListener(MainActivity.this, rotation, SensorManager.SENSOR_DELAY_GAME);
+            }
+        });
+
+
+        BtnStop.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+
+                sensorManager.unregisterListener(MainActivity.this);
+            }
+        });
+
+        mFrame = (RelativeLayout) findViewById(R.id.frame);
+
+        // Exit unless both sensors are available
+        if (null == accelerometer || null == rotation)
+            finish();
+
     }
 
     @Override
@@ -63,48 +152,90 @@ public class MainActivity extends SampleActivityBase {
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem logToggle = menu.findItem(R.id.menu_toggle_log);
-        logToggle.setVisible(findViewById(R.id.sample_output) instanceof ViewAnimator);
-        logToggle.setTitle(mLogShown ? R.string.sample_hide_log : R.string.sample_show_log);
+    protected void onResume() {
+        super.onResume();
 
-        return super.onPrepareOptionsMenu(menu);
+
+        // Register for sensor updates
+
+        sensorManager.registerListener(this, accelerometer,
+                SensorManager.SENSOR_DELAY_NORMAL);
+
+        sensorManager.registerListener(this, rotation,
+                SensorManager.SENSOR_DELAY_GAME);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.menu_toggle_log:
-                mLogShown = !mLogShown;
-                ViewAnimator output = (ViewAnimator) findViewById(R.id.sample_output);
-                if (mLogShown) {
-                    output.setDisplayedChild(1);
-                } else {
-                    output.setDisplayedChild(0);
-                }
-                supportInvalidateOptionsMenu();
-                return true;
+    protected void onPause() {
+        super.onPause();
+
+        // Unregister all sensors
+        sensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void step(long timeNs) {
+        numSteps++;
+        TvSteps.setText(TEXT_NUM_STEPS + numSteps);
+
+        int currentAngle = getAverageAzimuth();
+        double rad = Math.toRadians(360 - (currentAngle + 30));
+        double xstep = stride*(Math.cos(rad));
+        double ystep = stride*(Math.sin(rad));
+        xcoor = xcoor - xstep;
+        ycoor = ycoor + ystep;
+
+        azi.setText("" + currentAngle);
+        xCoordinate.setText("" + xcoor);
+        yCoordinate.setText("" + ycoor);
+        boolean updateGondola = true;
+        if(xcoor < 100.0 || xcoor > 600.0) {
+            updateGondola = false;
+            zCoordinate.setText("Out of bounds!");
+        }else if(ycoor < 100.0 || ycoor > 500.0){
+            updateGondola = false;
+            zCoordinate.setText("Out of bounds!");
+        }else if(zcoor < 0 || zcoor > 225){
+            updateGondola = false;
+            zCoordinate.setText("Out of bounds!");
         }
-        return super.onOptionsItemSelected(item);
+        if(updateGondola) {
+            fragment.sendMessageFromMain((int) xcoor, (int) ycoor, (int) zcoor);
+            zCoordinate.setText("Sent to Gondola!");
+        }
     }
 
-    /** Create a chain of targets that will receive log data */
+    public int getAverageAzimuth()
+    {
+        int sum = 0;
+        for(int j = 0; j < 99; j++){
+            sum = sum + mAzimuth[j];
+        }
+        sum = sum / 99;
+        return sum;
+    }
+
     @Override
-    public void initializeLogging() {
-        // Wraps Android's native log framework.
-        LogWrapper logWrapper = new LogWrapper();
-        // Using Log, front-end to the logging chain, emulates android.util.log method signatures.
-        Log.setLogNode(logWrapper);
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            simpleStepDetector.updateAccel(event.timestamp, event.values[0], event.values[1], event.values[2]);
+        }
+        else if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR){
+            // calculate the rotation matrix
+            SensorManager.getRotationMatrixFromVector( rMat, event.values );
+            // get the azimuth value (orientation[0]) in degree
+            mAzimuth[aziCount] = (int) ( Math.toDegrees( SensorManager.getOrientation( rMat, orientation )[0] ) + 360 ) % 360;
+            angle.setText("Azimuth: " + mAzimuth[aziCount]);
+            if(aziCount == 98){
+                aziCount = 0;
+            }else{
+                aziCount++;
+            }
+        }
+    }
 
-        // Filter strips out everything except the message text.
-        MessageOnlyLogFilter msgFilter = new MessageOnlyLogFilter();
-        logWrapper.setNext(msgFilter);
-
-        // On screen logging via a fragment with a TextView.
-        LogFragment logFragment = (LogFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.log_fragment);
-        msgFilter.setNext(logFragment.getLogView());
-
-        Log.i(TAG, "Ready");
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // not in use
     }
 }
