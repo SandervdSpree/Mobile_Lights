@@ -22,56 +22,32 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="0dp"
         android:background="@android:color/darker_gray" />
 
     <FrameLayout
         android:id="@+id/sample_content_fragment"
-        android:layout_weight="2"
-        android:layout_width="match_parent"
+        android:layout_weight="0"
+        android:layout_width="0dp"
         android:layout_height="0px" />
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_marginLeft="120dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="0dp"
         android:id="@+id/frame"/>
 
     <TextView
-        android:id="@+id/angle"
+        android:id="@+id/angleStep"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"/>
 
     <TextView
-        android:id="@+id/tv_steps"
+        android:id="@+id/coordinates"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"/>
-
-    <TextView
-        android:id="@+id/azi"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"/>
-
-    <TextView
-        android:id="@+id/xCoordinate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"/>
-
-    <TextView
-        android:id="@+id/yCoordinate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"/>
-
-    <TextView
-        android:id="@+id/zCoordinate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"/>
+        android:gravity="center" />
 
     <Button
         android:id="@+id/btn_start"
@@ -87,5 +63,10 @@
         android:text="Stop Pedometer"
         />
 
-    </LinearLayout>
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</LinearLayout>
 

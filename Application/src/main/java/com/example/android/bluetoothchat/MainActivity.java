@@ -40,12 +40,8 @@ import com.example.android.common.activities.SampleActivityBase;
  */
 public class MainActivity extends SampleActivityBase implements SensorEventListener, StepListener {
 
-    private TextView angle;
-    private TextView azi;
-    private TextView TvSteps;
-    private TextView xCoordinate;
-    private TextView yCoordinate;
-    private TextView zCoordinate;
+    private TextView angleStep;
+    private TextView coordinates;
     private StepDetector simpleStepDetector;
     private SensorManager sensorManager;
     // Main View
@@ -68,6 +64,7 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
     public static final String TAG = "MainActivity";
 
     public int stride = 78;
+    public int currentangle;
     public double xcoor = 575;
     public double ycoor = 125;
     public double zcoor = 180;
@@ -81,8 +78,10 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.sample_content_fragment, fragment);
             transaction.commit();
+            FragmentTransaction secondtransaction = getSupportFragmentManager().beginTransaction();
+            secondtransaction.replace(R.id.container, Camera2BasicFragment.newInstance());
+            secondtransaction.commit();
         }
-
         // Get an instance of the SensorManager
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -94,16 +93,10 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
         sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(MainActivity.this, rotation, SensorManager.SENSOR_DELAY_GAME);
 
-        angle = (TextView) findViewById(R.id.angle);
-        azi = (TextView) findViewById(R.id.azi);
-        azi.setText("Waiting for a step...");
-        TvSteps = (TextView) findViewById(R.id.tv_steps);
-        xCoordinate = (TextView) findViewById(R.id.xCoordinate);
-        xCoordinate.setText("" + xcoor);
-        yCoordinate = (TextView) findViewById(R.id.yCoordinate);
-        yCoordinate.setText("" + ycoor);
-        zCoordinate = (TextView) findViewById(R.id.zCoordinate);
-        zCoordinate.setText("" + zcoor);
+        angleStep = (TextView) findViewById(R.id.angleStep);
+        angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     Waiting for a step...    " + TEXT_NUM_STEPS + numSteps);
+        coordinates = (TextView) findViewById(R.id.coordinates);
+        coordinates.setText("" + xcoor + "    " + ycoor + "    " + zcoor);
 
         Button BtnStart = (Button) findViewById(R.id.btn_start);
         Button BtnStop = (Button) findViewById(R.id.btn_stop);
@@ -118,10 +111,8 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
                 ycoor = 125;
                 zcoor = 180;
 
-                TvSteps.setText(TEXT_NUM_STEPS + numSteps);
-                xCoordinate.setText("" + xcoor);
-                yCoordinate.setText("" + ycoor);
-                zCoordinate.setText("" + zcoor);
+                angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     Waiting for a step...    " + TEXT_NUM_STEPS + numSteps);
+                coordinates.setText("" + xcoor + "    " + ycoor + "    " + zcoor);
                 sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
                 sensorManager.registerListener(MainActivity.this, rotation, SensorManager.SENSOR_DELAY_GAME);
             }
@@ -176,32 +167,30 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
     @Override
     public void step(long timeNs) {
         numSteps++;
-        TvSteps.setText(TEXT_NUM_STEPS + numSteps);
+        angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     " + currentangle + "    " + TEXT_NUM_STEPS + numSteps);
 
-        int currentAngle = getAverageAzimuth();
-        double rad = Math.toRadians(360 - (currentAngle + 30));
+        currentangle = getAverageAzimuth();
+        double rad = Math.toRadians(360 - (currentangle + 30));
         double xstep = stride*(Math.cos(rad));
         double ystep = stride*(Math.sin(rad));
         xcoor = xcoor - xstep;
         ycoor = ycoor + ystep;
 
-        azi.setText("" + currentAngle);
-        xCoordinate.setText("" + xcoor);
-        yCoordinate.setText("" + ycoor);
+        angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     " + currentangle + "    " + TEXT_NUM_STEPS + numSteps);
+        coordinates.setText("" + xcoor + "    " + ycoor + "    " + zcoor);
         boolean updateGondola = true;
         if(xcoor < 100.0 || xcoor > 600.0) {
             updateGondola = false;
-            zCoordinate.setText("Out of bounds!");
         }else if(ycoor < 100.0 || ycoor > 500.0){
             updateGondola = false;
-            zCoordinate.setText("Out of bounds!");
         }else if(zcoor < 0 || zcoor > 225){
             updateGondola = false;
-            zCoordinate.setText("Out of bounds!");
         }
         if(updateGondola) {
             fragment.sendMessageFromMain((int) xcoor, (int) ycoor, (int) zcoor);
-            zCoordinate.setText("Sent to Gondola!");
+            coordinates.setText("" + xcoor + "    " + ycoor + "    " + "Sent to gondola!");
+        }else{
+            coordinates.setText("" + xcoor + "    " + ycoor + "    " + "Out of bounds!");
         }
     }
 
@@ -225,7 +214,7 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
             SensorManager.getRotationMatrixFromVector( rMat, event.values );
             // get the azimuth value (orientation[0]) in degree
             mAzimuth[aziCount] = (int) ( Math.toDegrees( SensorManager.getOrientation( rMat, orientation )[0] ) + 360 ) % 360;
-            angle.setText("Azimuth: " + mAzimuth[aziCount]);
+            angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     " + currentangle + "    " + TEXT_NUM_STEPS + numSteps);
             if(aziCount == 98){
                 aziCount = 0;
             }else{
