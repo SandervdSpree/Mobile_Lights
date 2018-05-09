@@ -30,11 +30,11 @@ public final class R {
         public static final int alignBounds = 0x7f070016;
         public static final int alignMargins = 0x7f070017;
         public static final int bottom = 0x7f07001b;
-        public static final int center = 0x7f070021;
-        public static final int center_horizontal = 0x7f070022;
-        public static final int center_vertical = 0x7f070023;
-        public static final int clip_horizontal = 0x7f070026;
-        public static final int clip_vertical = 0x7f070027;
+        public static final int center = 0x7f070023;
+        public static final int center_horizontal = 0x7f070024;
+        public static final int center_vertical = 0x7f070025;
+        public static final int clip_horizontal = 0x7f070028;
+        public static final int clip_vertical = 0x7f070029;
         public static final int end = 0x7f070034;
         public static final int fill = 0x7f070038;
         public static final int fill_horizontal = 0x7f070039;
