@@ -96,25 +96,27 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
     private Sensor rotation;
     BluetoothChatFragment fragment = new BluetoothChatFragment();
 
+    private static final String TEXT_NUM_STEPS = "Number of Steps: ";
+    public static final String TAG = "MainActivity";
+    public String luminance = "luminance";
+
     float[] orientation = new float[3];
     float[] rMat = new float[9];
-
     int[] mAzimuth = new int[99];
-    int aziCount = 0;
-
-    private static final String TEXT_NUM_STEPS = "Number of Steps: ";
+    public double xoffset, yoffset = 0;
+    private int aziCount = 0;
     private int numSteps;
-
-    public static final String TAG = "MainActivity";
-
-    public int stride = 78;
-    public int currentangle;
+    private int currentangle;
     public double xcoor = 575;
     public double ycoor = 125;
     public double zcoor = 180;
-    public String luminance = "luminance";
     public int jpeg_count = 0;
     public boolean saved_picture = false;
+    public boolean updateGondola = true;
+    public boolean updateStep = false;
+
+    public double xPixel = 0;
+    public double yPixel = 0;
 
     private Button takePictureButton;
     private Button getPictureButton;
@@ -164,28 +166,13 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
                     ImageView IV = (ImageView) findViewById(R.id.picture);
                     Bitmap bMap = BitmapFactory.decodeFile(root + "/pic" + (jpeg_count - 1) + ".jpg");
                     bMap = CorrectBitmap(bMap, 90);
-                    Bitmap graybMap = toGrayscale(bMap);
-                    IV.setImageBitmap(graybMap);
-                    int pixel = bMap.getPixel(0,0);
-                    int R = Color.red(pixel);
-                    int B = Color.blue(pixel);
-                    int G = Color.green(pixel);
-                    double Y = (0.299 * R + 0.587 * G + 0.114 * B);
-                    double U = -0.147 * R - 0.289 * G + 0.436 * B;
-                    double V =  0.615 * R - 0.515 * G - 0.100 * B;
-                    R = (int) (Y + 1.140 * V);
-                    G = (int) (Y - 0.395 * U - 0.581 * V);
-                    B = (int) (Y + 2.032 * U);
-                    //Color pixelcolor = new Color(R, G, B);
-                    luminance = "" + Y;
-                    coordinates.setText("" + xcoor + "    " + ycoor + "    " + zcoor + "    " + luminance);
-                    /*
-                    for(int i = 0; i < graybMap.getWidth(); i++){
-                        for(int j = 0; j < graybMap.getHeight(); j++){
+                    int height = bMap.getHeight();
+                    int width = bMap.getWidth();
+                    Bitmap filteredBMap = calculatePixels(bMap, height, width);
+                    filteredBMap = filteredBMap.copy( Bitmap.Config.RGB_565 , true);
+                    IV.setImageBitmap(filteredBMap);
 
-                        }
-                    }*/
-
+                    updateCoordinates();
 
                     saved_picture = false;
                 }
@@ -547,17 +534,35 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
     public void step(long timeNs) {
         numSteps++;
         angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     " + currentangle + "    " + TEXT_NUM_STEPS + numSteps);
+        updateStep = true;
+        updateCoordinates();
+    }
 
+    public void updateCoordinates(){
         currentangle = getAverageAzimuth();
         double rad = Math.toRadians(360 - (currentangle + 30));
-        double xstep = stride*(Math.cos(rad));
-        double ystep = stride*(Math.sin(rad));
-        xcoor = xcoor - xstep;
-        ycoor = ycoor + ystep;
+        double xstep;
+        double ystep;
+        if(updateStep){
+            xstep = 78*(Math.cos(rad));
+            ystep = 78*(Math.sin(rad));
+            xcoor = xcoor - xstep;
+            ycoor = ycoor + ystep;
+            updateStep = false;
+        }else {
+            xstep = (xoffset * (Math.cos(rad))) + (yoffset * (Math.cos(rad)));
+            ystep = (xoffset * (Math.sin(rad))) + (yoffset * (Math.sin(rad)));
+            xcoor = xcoor - xstep;
+            ycoor = ycoor + ystep;
+        }
 
         angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     " + currentangle + "    " + TEXT_NUM_STEPS + numSteps);
         coordinates.setText("" + xcoor + "    " + ycoor + "    " + zcoor + "    " + luminance);
-        boolean updateGondola = true;
+        updateGondola((int)xcoor, (int)ycoor, (int)zcoor);
+    }
+
+    public void updateGondola(int xcoor, int ycoor, int zcoor){
+        updateGondola = true;
         if(xcoor < 100.0 || xcoor > 600.0) {
             updateGondola = false;
         }else if(ycoor < 100.0 || ycoor > 500.0){
@@ -571,6 +576,36 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
         }else{
             coordinates.setText("" + xcoor + "    " + ycoor + "    " + "Out of bounds!" + "    " + luminance);
         }
+    }
+
+    public Bitmap calculatePixels(Bitmap bMap, int height, int width){
+        int[] pixels;
+        int lightcount = 0;
+
+        pixels = new int[height * width];
+
+        bMap.getPixels(pixels, 0, width, 1, 1, width - 1, height - 1);
+
+        for(int i = 0; i < width*height; i++){
+            int R = Color.red(pixels[i]);
+            int B = Color.blue(pixels[i]);
+            int G = Color.green(pixels[i]);
+            double Y = (0.299 * R + 0.587 * G + 0.114 * B);
+            if(Y<230){
+                pixels[i]=0;
+            }else{
+                xPixel += Math.floor(i/width);
+                yPixel += i % width;
+                lightcount++;
+            }
+        }
+        xPixel = xPixel/lightcount;
+        yPixel = yPixel/lightcount;
+        coordinates.setText("" + xPixel + "    " + yPixel + "    " + width + "    " + luminance);
+        Bitmap filteredBMap = Bitmap.createBitmap(pixels, 0,width, width, height, Bitmap.Config.RGB_565);
+        xoffset = ((xPixel - width)/19.5);
+        yoffset = ((yPixel - height)/15);
+        return filteredBMap;
     }
 
     public int getAverageAzimuth()
