@@ -3,7 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Application/Application.iml" filepath="$PROJECT_DIR$/Application/Application.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Mobile_Lights.iml" filepath="$PROJECT_DIR$/Mobile_Lights.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Mobile_Light.iml" filepath="$PROJECT_DIR$/Mobile_Light.iml" />
+      <module fileurl="file://$PROJECT_DIR$/openCVLibrary342/openCVLibrary342.iml" filepath="$PROJECT_DIR$/openCVLibrary342/openCVLibrary342.iml" />
     </modules>
   </component>
 </project>

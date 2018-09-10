@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="C:\Users\Sander\Desktop\Mobile_Lights\Application\src\main\jniLibs"/></dataSet><dataSet config="debug"><source path="C:\Users\Sander\Desktop\Mobile_Lights\Application\src\debug\jniLibs"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="C:\Users\Sander\Desktop\Mobile_Light\Application\src\main\jniLibs"/></dataSet><dataSet config="debug"><source path="C:\Users\Sander\Desktop\Mobile_Light\Application\src\debug\jniLibs"/></dataSet></merger>
