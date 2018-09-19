@@ -38,6 +38,7 @@ import android.widget.Toast;
 public class BluetoothChatFragment extends Fragment {
 
     private static final String TAG = "BluetoothChatFragment";
+    public static int readCount = 0;
 
     // Intent request codes
     private static final int REQUEST_CONNECT_DEVICE_SECURE = 1;
@@ -167,8 +168,12 @@ public class BluetoothChatFragment extends Fragment {
         }
     }
 
-    public void sendMessageFromMain(int xcoor, int ycoor, int zcoor){
+    public void sendCoordinatesFromMain(int xcoor, int ycoor, int zcoor){
         sendMessage("" + xcoor + " " + ycoor + " " + zcoor + " " + "10 ");
+    }
+
+    public void sendDiscoveryFromMain(String message){
+        sendMessage(message);
     }
 
     /**
@@ -236,7 +241,7 @@ public class BluetoothChatFragment extends Fragment {
                     byte[] readBuf = (byte[]) msg.obj;
                     // construct a string from the valid bytes in the buffer
                     String readMessage = new String(readBuf, 0, msg.arg1);
-                    //MainActivity.getCoordinates(readMessage);
+                    MainActivity.getCoordinates(readMessage);
                     break;
                 case Constants.MESSAGE_DEVICE_NAME:
                     // save the connected device's name

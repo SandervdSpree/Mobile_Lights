@@ -50,17 +50,17 @@
         android:gravity="center" />
 
     <Button
-        android:id="@+id/btn_start"
+        android:id="@+id/btn_offset"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/startpedo"
+        android:text="@string/offset"
         />
 
     <Button
-        android:id="@+id/btn_stop"
+        android:id="@+id/btn_discov"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/stoppedo"
+        android:text="@string/discovery"
         />
 
     <LinearLayout

@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,6 +41,7 @@ public class BluetoothChatService {
     // Debugging
     private static final String TAG = "BluetoothChatService";
 
+    private static long ms1 = 0;
     // Name for the SDP record when creating server socket
     private static final String NAME_SECURE = "HC-06";
     private static final String NAME_INSECURE = "HC-06";
@@ -467,12 +469,16 @@ public class BluetoothChatService {
             // Keep listening to the InputStream while connected
             while (mState == STATE_CONNECTED) {
                 try {
-                    // Read from the InputStream
-                    bytes = mmInStream.read(buffer);
-
-                    // Send the obtained bytes to the UI Activity
-                    //mHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
-                } catch (IOException e) {
+                    byte[] messageByte = new byte[1024];
+                    DataInputStream in = new DataInputStream(mmInStream);
+                    int test = in.available();
+                    if(test > 0) {
+                        bytes = in.read(messageByte);
+                        System.arraycopy(messageByte,0,buffer,0,1024);
+                        mHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer)
+                                .sendToTarget();
+                    }
+                } catch (Exception e) {
                     connectionLost();
                     break;
                 }

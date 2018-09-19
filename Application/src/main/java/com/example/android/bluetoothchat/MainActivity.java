@@ -27,7 +27,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.android.common.activities.SampleActivityBase;
@@ -48,6 +47,8 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.opencv.core.CvType.CV_8UC4;
@@ -69,16 +70,20 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
     private Mat mIntermediateMat;
     private Mat mGray;
     private Mat mThres;
-    private Mat mCombo;
     private Mat mPrevGray;
+    /*
+    private Mat mCombo;
     private Mat mGreen;
     private Mat mImg1;
     private Mat mImg2;
     private Scalar mean;
+    */
     private Scalar green = new Scalar(0,255,0);
     private Scalar red = new Scalar(255,0,0);
-    private Point lightPos;
-    private Point middle;
+    private Scalar blue = new Scalar(0,0,255);
+    private Point lightPos = new Point(0,0);
+    private Point lightPosMaxLoc = new Point();
+    private Point middle = new Point();
 
     private List<Point> prevList;
     private List<Point> nextList;
@@ -105,30 +110,31 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
     private Sensor rotation;
     BluetoothChatFragment fragment = new BluetoothChatFragment();
 
-    public static String luminance = "luminance";
-
     float[] orientation = new float[3];
     float[] rMat = new float[9];
     int[] mAzimuth = new int[99];
-    public double xoffset, yoffset = 0;
+    public double xoffset, yoffset, angle, rad = 0;
     private int aziCount = 0;
     private int numSteps;
     private int currentangle;
     //public double xcoor = 575;
     //public double ycoor = 125;
     //public double zcoor = 180;
-    public double xcoor = 447;
-    public double ycoor = 136;
-    public double zcoor = 180;
+//    public double xcoor = 447;
+//    public double ycoor = 136;
+//    public double zcoor = 180;
+    public static double xcoor = 400;
+    public static double ycoor = 300;
+    public static double zcoor = 0;
     public long gondolaUpdate = 0;
     public boolean opencvUpdate = false;
     public boolean updateGondola = true;
     public boolean updateStep = false;
+    public boolean testFix = false;
+    public static boolean discovery = false;
+    public boolean buttonToggle = false;
 
-    public double xPixel = 0;
-    public double yPixel = 0;
-
-    private RelativeLayout mFrame;
+    //private RelativeLayout mFrame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,44 +173,51 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
         sensorManager.registerListener(MainActivity.this, rotation, SensorManager.SENSOR_DELAY_GAME);
 
         angleStep = (TextView) findViewById(R.id.angleStep);
-        angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     Waiting for a step...    " + TEXT_NUM_STEPS + numSteps + " " + luminance);
+        angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     Waiting for a step...    " + TEXT_NUM_STEPS + numSteps);
         coordinates = (TextView) findViewById(R.id.coordinates);
         coordinates.setText("" + xcoor + "    " + ycoor + "    " + zcoor);
 
         info = (TextView) findViewById(R.id.info);
         info.setText("Brightest pixel");
 
-        Button BtnStart = (Button) findViewById(R.id.btn_start);
-        Button BtnStop = (Button) findViewById(R.id.btn_stop);
+        Button BtnPedo = (Button) findViewById(R.id.btn_offset);
+        Button BtnDiscov = (Button) findViewById(R.id.btn_discov);
 
-        BtnStart.setOnClickListener(new View.OnClickListener() {
+        BtnPedo.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
+//                if(buttonToggle){
+//                    numSteps = 0;
+//                    xcoor = 575;
+//                    ycoor = 125;
+//                    zcoor = 180;
+//
+//                    angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     Waiting for a step...    " + TEXT_NUM_STEPS + numSteps);
+//                    coordinates.setText("" + xcoor + "    " + ycoor + "    " + zcoor);
+//                    sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+//                    sensorManager.registerListener(MainActivity.this, rotation, SensorManager.SENSOR_DELAY_NORMAL);
+//                }else{
+//                    sensorManager.unregisterListener(MainActivity.this);
+//                }
+//                buttonToggle = !buttonToggle;
 
-                numSteps = 0;
-                xcoor = 575;
-                ycoor = 125;
-                zcoor = 180;
-
-                angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     Waiting for a step...    " + TEXT_NUM_STEPS + numSteps + " " + luminance);
-                coordinates.setText("" + xcoor + "    " + ycoor + "    " + zcoor);
-                sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-                sensorManager.registerListener(MainActivity.this, rotation, SensorManager.SENSOR_DELAY_NORMAL);
+                //fragment.sendDiscoveryFromMain("seen");
+                testFix = true;
             }
         });
 
 
-        BtnStop.setOnClickListener(new View.OnClickListener() {
+        BtnDiscov.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
-
-                sensorManager.unregisterListener(MainActivity.this);
+                fragment.sendDiscoveryFromMain("disc");
+                discovery = true;
             }
         });
 
-        mFrame = (RelativeLayout) findViewById(R.id.frame);
+        //mFrame = (RelativeLayout) findViewById(R.id.frame);
 
         // Exit unless both sensors are available
         if (null == accelerometer || null == rotation)
@@ -217,31 +230,6 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-
-//    public static Bitmap CorrectBitmap(Bitmap source, float angle)
-//    {
-//        Matrix matrix = new Matrix();
-//        matrix.preScale(-1.0f, 1.0f);
-//        matrix.postRotate(angle);
-//        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
-//    }
-//
-//    public Bitmap toGrayscale(Bitmap bmpOriginal)
-//    {
-//        int width, height;
-//        height = bmpOriginal.getHeight();
-//        width = bmpOriginal.getWidth();
-//
-//        Bitmap bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-//        Canvas c = new Canvas(bmpGrayscale);
-//        Paint paint = new Paint();
-//        ColorMatrix cm = new ColorMatrix();
-//        cm.setSaturation(0);
-//        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
-//        paint.setColorFilter(f);
-//        c.drawBitmap(bmpOriginal, 0, 0, paint);
-//        return bmpGrayscale;
-//    }
 
     @Override
     protected void onResume() {
@@ -281,16 +269,16 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
     @Override
     public void step(long timeNs) {
         numSteps++;
-        angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     " + currentangle + "    " + TEXT_NUM_STEPS + numSteps + " " + luminance);
+        angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     Waiting for a step...    " + TEXT_NUM_STEPS + numSteps);
         updateStep = true;
         updateCoordinates();
     }
 
     public void updateCoordinates(){
         currentangle = getAverageAzimuth();
-        double rad = Math.toRadians(360 - (currentangle + 30));
-        double xstep;
-        double ystep;
+        rad = Math.toRadians(360 - (currentangle + 115));
+        final double xstep;
+        final double ystep;
         if(updateStep){
             xstep = 78*(Math.cos(rad));
             ystep = 78*(Math.sin(rad));
@@ -298,67 +286,98 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
             ycoor = ycoor + ystep;
             updateStep = false;
         }else {
-            xstep = (xoffset * (Math.cos(rad))) + (yoffset * (Math.cos(rad)));
-            ystep = (xoffset * (Math.sin(rad))) + (yoffset * (Math.sin(rad)));
+            xoffset = Math.round((lightPos.y - middle.y)/9.47);
+            yoffset = Math.round((middle.x - lightPos.x)/9.41);
+            double distance = Math.hypot(xoffset, yoffset);
+            angle = Math.atan2(yoffset,xoffset);
+            xstep = distance*(Math.cos(angle + rad));
+            ystep = distance*(Math.sin(angle + rad));
             xcoor = xcoor - xstep;
             ycoor = ycoor + ystep;
+            testFix = false;
         }
 
-        angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     " + currentangle + "    " + TEXT_NUM_STEPS + numSteps + " " + luminance);
-        coordinates.setText("" + xcoor + "    " + ycoor + "    " + zcoor);
-        updateGondola((int)xcoor, (int)ycoor, (int)zcoor);
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     Waiting for a step...    " + TEXT_NUM_STEPS + numSteps);
+                coordinates.setText("" + xcoor + "    " + ycoor + "    " + zcoor);
+                info.setText(middle.x + " " + middle.y + " " + lightPos.x + " " + lightPos.y + " angle: " + Math.toDegrees(angle + rad) + " " + (int)xstep + " " + (int)ystep);
+//                info.setText(mGray.width() + " " + mGray.height());
+            }
+        });
+        //updateGondola((int)xcoor, (int)ycoor, (int)zcoor);
     }
 
     public void updateGondola(int xcoor, int ycoor, int zcoor){
         updateGondola = true;
-        if(xcoor < 100.0 || xcoor > 600.0) {
+        if(xcoor < 100.0){
+            xcoor = 100;
             updateGondola = false;
-        }else if(ycoor < 100.0 || ycoor > 500.0){
+        }else if(xcoor > 600.0) {
+            xcoor = 600;
             updateGondola = false;
-        }else if(zcoor < 0 || zcoor > 225){
+        }else if(ycoor < 100.0){
+            ycoor = 100;
+            updateGondola = false;
+        }else if(ycoor > 500.0){
+            ycoor = 500;
+            updateGondola = false;
+        }else if(zcoor < 0){
+            zcoor = 0;
+            updateGondola = false;
+        }else if(zcoor > 180){
+            zcoor = 180;
             updateGondola = false;
         }
         if(updateGondola) {
-            fragment.sendMessageFromMain((int) xcoor, (int) ycoor, (int) zcoor);
+            fragment.sendCoordinatesFromMain((int) xcoor, (int) ycoor, (int) zcoor);
             coordinates.setText("" + xcoor + "    " + ycoor + "    " + "Sent to gondola!");
         }else{
-            coordinates.setText("" + xcoor + "    " + ycoor + "    " + "Out of bounds!");
+            fragment.sendCoordinatesFromMain((int) xcoor, (int) ycoor, (int) zcoor);
+            coordinates.setText("" + xcoor + "    " + ycoor + "    " + "Out of bounds! Sent to gondola with boundaries.");
         }
     }
 
     public static void getCoordinates(String gondolaMessage){
-        luminance = gondolaMessage;
+        if(gondolaMessage != null && !gondolaMessage.isEmpty()) {
+            String ltrim = gondolaMessage.replaceAll("^\\s+","");
+            String rtrim = ltrim.replaceAll("\\s+$","");
+            String test = "";
+            if (!rtrim.equals(test)) {
+                String Coor = rtrim.substring(0,1);
+                Coordinates coorTest = Coordinates.valueOf(Coor.toUpperCase());
+                int position = 0;
+                if(!coorTest.equals("D")){
+                    position = Integer.parseInt(rtrim.substring(1,rtrim.length()));
+                }
+                switch(coorTest){
+                    case D:
+                        discovery = !discovery;
+                        break;
+                    case X:
+                        xcoor = position;
+                        break;
+                    case Y:
+                        ycoor = position;
+                        break;
+                    case Z:
+                        zcoor = position;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 
-//    public Bitmap calculatePixels(Bitmap bMap, int height, int width){
-//        int[] pixels;
-//        int lightcount = 0;
-//
-//        pixels = new int[height * width];
-//
-//        bMap.getPixels(pixels, 0, width, 1, 1, width - 1, height - 1);
-//
-//        for(int i = 0; i < width*height; i++){
-//            int R = Color.red(pixels[i]);
-//            int B = Color.blue(pixels[i]);
-//            int G = Color.green(pixels[i]);
-//            double Y = (0.299 * R + 0.587 * G + 0.114 * B);
-//            if(Y<230){
-//                pixels[i]=0;
-//            }else{
-//                xPixel += Math.floor(i/width);
-//                yPixel += i % width;
-//                lightcount++;
-//            }
-//        }
-//        xPixel = xPixel/lightcount;
-//        yPixel = yPixel/lightcount;
-//        coordinates.setText("" + xPixel + "    " + yPixel + "    " + width + "    " + luminance);
-//        Bitmap filteredBMap = Bitmap.createBitmap(pixels, 0,width, width, height, Bitmap.Config.RGB_565);
-//        xoffset = Math.round((xPixel - width)/14.2);
-//        yoffset = Math.round(((yPixel - height)/13.25));
-//        return filteredBMap;
-//    }
+    public enum Coordinates {
+        D,
+        X,
+        Y,
+        Z
+    }
 
     public int getAverageAzimuth()
     {
@@ -381,7 +400,8 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
             SensorManager.getRotationMatrixFromVector( rMat, event.values );
             // get the azimuth value (orientation[0]) in degree
             mAzimuth[aziCount] = (int) ( Math.toDegrees( SensorManager.getOrientation( rMat, orientation )[0] ) + 360 ) % 360;
-            angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     " + currentangle + "    " + TEXT_NUM_STEPS + numSteps + " " + luminance);
+            angleStep.setText("Azimuth: " + mAzimuth[aziCount] + "     Waiting for a step...    " + TEXT_NUM_STEPS + numSteps);
+            coordinates.setText("" + xcoor + "    " + ycoor + "    " + zcoor);
             if(aziCount == 98){
                 aziCount = 0;
             }else{
@@ -456,59 +476,62 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
         mRgba.release();
         mThres.release();
         mRgbaT.release();
+
         mGray = inputFrame.gray();
-//        Imgproc.threshold(mGray,mThres,254,255, Imgproc.THRESH_BINARY);
-//        mThres.empty();
-//        Scalar black = new Scalar(0,0,0);
-//        mGreen = new Mat(mRgba.size(), CV_8UC4, black);
-//        mGreen.setTo(green, mThres);
-//        mean = Core.mean(mThres);
+
+        // Thresholding: leaving only light sources
+        Imgproc.threshold(mGray,mThres,254,255, Imgproc.THRESH_BINARY);
+
+        // Find contours of light sources
+        List<MatOfPoint> contours = new ArrayList<>();
+        Imgproc.findContours(mThres,contours,new Mat(),Imgproc.RETR_TREE,Imgproc.CHAIN_APPROX_SIMPLE);
+        double maxArea = 0;
+        MatOfPoint max_contour = new MatOfPoint();
+
+        //
+        if(discovery){
+            if(!contours.isEmpty()){
+                fragment.sendDiscoveryFromMain("seen");
+                discovery = false;
+            }
+        }
+
+        // Select biggest contour = LED in dark room
+        Iterator<MatOfPoint> iterator = contours.iterator();
+        while (iterator.hasNext()) {
+            MatOfPoint contour = iterator.next();
+            double area = Imgproc.contourArea(contour);
+            if (area > maxArea) {
+                maxArea = area;
+                max_contour = contour;
+            }
+        }
+
+        // Determine center of light source
+        centerPolygon(max_contour);
+
+        // Gaussian blur and brightest pixel detection
         Imgproc.GaussianBlur(mGray,mGray,radius,2);
         Core.MinMaxLocResult mmr = Core.minMaxLoc(mGray);
-        lightPos = mmr.maxLoc;
+        lightPosMaxLoc = mmr.maxLoc;
 
+        // Get color frame back for display
         mGray = inputFrame.rgba();
 
-//        if (features.toArray().length == 0) {
-//            int rowStep = 50, colStep = 100;
-//            int nRows = mGray.rows() / rowStep, nCols = mGray.cols() / colStep;
-//
-//            Point points[] = new Point[nRows * nCols];
-//            for (int i = 0; i < nRows; i++) {
-//                for (int j = 0; j < nCols; j++) {
-//                    points[i * nCols + j] = new Point(j * colStep, i * rowStep);
-//                }
-//            }
-//
-//            features.fromArray(points);
-//
-//            prevFeatures.fromList(features.toList());
-//            mPrevGray = mGray.clone();
-//        }
-//
-//        nextFeatures.fromArray(prevFeatures.toArray());
-//        Video.calcOpticalFlowPyrLK(mPrevGray, mGray, prevFeatures, nextFeatures, status, err);
-//
-//        prevList = features.toList();
-//        nextList = nextFeatures.toList();
-//        Scalar color = new Scalar(255, 0, 0);
-//
-//        for (int i = 0; i < prevList.size(); i++) {
-//            Imgproc.line(mGray, prevList.get(i), nextList.get(i), color);
-//            updateText(i, lightPos);
-//        }
-//        mPrevGray = mGray.clone();
-
-//        mCombo = new Mat(mRgba.size(), CV_8UC4);
-//        mImg1 = mGray;
-//        mImg2 = mGreen;
-//        Core.addWeighted(mImg1, 0.5, mImg2, 0.5, 0.0, mCombo);
-//
-
+        // Draw functions for light source contours and middle point, LED point en brightest pixel point
+        for(int i = 0; i<contours.size();i++) {
+            Imgproc.drawContours(mGray, contours, i, green);
+        }
         Imgproc.circle(mGray,lightPos,9,green,5);
+        Point line = new Point((middle.x + (middle.x - lightPos.x)), (middle.y + (middle.y - lightPos.y)));
+        Imgproc.line(mGray,middle,line, green);
+        Imgproc.circle(mGray,lightPosMaxLoc,9,blue,5);
         Imgproc.circle(mGray,middle,9,red, 5);
 
-        checkupdate();
+        //
+        if(testFix){
+            checkupdate();
+        }
 
         mRgbaT = mGray.t();
         Core.flip(mGray.t(), mRgbaT, -1);
@@ -518,6 +541,23 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
 //        return mGray;
     }
 
+    private void centerPolygon(MatOfPoint points)
+    {
+        List<Point> p = points.toList();
+        double x=0, y=0;
+        double length = 0;
+
+        Iterator<Point> iterator = p.iterator();
+        while (iterator.hasNext()) {
+            Point poi = iterator.next();
+            x += poi.x;
+            y += poi.y;
+            length++;
+        }
+        lightPos.x = (x/length);
+        lightPos.y = (y/length);
+    }
+
     public void checkupdate(){
         if(!opencvUpdate){
             opencvUpdate = true;
@@ -525,27 +565,10 @@ public class MainActivity extends SampleActivityBase implements SensorEventListe
         }
 
         if(System.currentTimeMillis() - gondolaUpdate > 10000) {
-            updatePosition(lightPos, middle);
+            if(testFix){
+                updateCoordinates();
+            }
             opencvUpdate = false;
         }
-    }
-
-    public void updatePosition(final Point p, final Point m){
-        currentangle = getAverageAzimuth();
-        double rad = Math.toRadians(360 - (currentangle + 30));
-        double xstep,ystep;
-        xoffset = Math.round((p.x - m.x)/14.2);
-        yoffset = Math.round((m.y - p.y)/13.25);
-        xstep = (xoffset * (Math.cos(rad))) + (yoffset * (Math.cos(rad)));
-        ystep = (xoffset * (Math.sin(rad))) + (yoffset * (Math.sin(rad)));
-
-        runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                    info.setText(p.x + " " + p.y);
-//                info.setText(mGray.width() + " " + mGray.height());
-            }
-        });
     }
 }
